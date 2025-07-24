@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: Inventory Management API
+  description: A RESTful API to manage users and products for a small business.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: testuser
+        password:
+          type: string
+          example: password123
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 60d21b4667d0d8992e610c85
+        name:
+          type: string
+          example: "Gaming Mouse"
+        type:
+          type: string
+          example: "Electronics"
+        sku:
+          type: string
+          example: "GM-001"
+        description:
+          type: string
+          example: "A high-performance gaming mouse."
+        image_url:
+          type: string
+          example: "https://example.com/mouse.jpg"
+        quantity:
+          type: integer
+          example: 150
+        price:
+          type: number
+          example: 49.99
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User registered successfully
+        '409':
+          description: User already exists
+
+  /login:
+    post:
+      summary: Login an existing user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Login successful, returns JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+        '401':
+          description: Invalid username or password
+
+  /products:
+    get:
+      summary: Get a list of all products
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The page number for pagination.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The number of items to return per page.
+      responses:
+        '200':
+          description: A list of products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '401':
+          description: Not authorized
+    post:
+      summary: Add a new product
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                sku:
+                  type: string
+                quantity:
+                  type: integer
+                price:
+                  type: number
+      responses:
+        '201':
+          description: Product added successfully
+        '401':
+          description: Not authorized
+        '409':
+          description: Product with this SKU already exists
+
+  /products/{id}/quantity:
+    put:
+      summary: Update a product's quantity
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the product to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  example: 50
+      responses:
+        '200':
+          description: Quantity updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '401':
+          description: Not authorized
+        '404':
+          description: Product not found
