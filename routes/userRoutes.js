@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser } = require('../controllers/userController');
+const {
+  registerUser,
+  loginUser,
+  getUsers, // Import getUsers
+} = require('../controllers/userController');
+const { protect, admin } = require('../middleware/authMiddleware'); // Import admin
 
-// Handles user registration
+// Public routes
 router.post('/register', registerUser);
-
-// Handles user login
 router.post('/login', loginUser);
+
+// Admin-only route
+router.get('/users', protect, admin, getUsers);
 
 module.exports = router;

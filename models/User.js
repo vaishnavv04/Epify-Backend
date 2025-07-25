@@ -2,20 +2,23 @@ const mongoose = require('mongoose');
 
 // Define the schema for the User collection
 const UserSchema = new mongoose.Schema({
-username: {
-type: String,
-required: [true, 'Please provide a username'], // The username is required
-unique: true // Each username must be unique
-},
-password: {
-type: String,
-required: [true, 'Please provide a password'] // The password is required
-}
+  username: {
+    type: String,
+    required: [true, 'Please provide a username'],
+    unique: true
+  },
+  password: {
+    type: String,
+    required: [true, 'Please provide a password']
+  },
+  // Add the new role field
+  role: {
+    type: String,
+    enum: ['user', 'admin'], // The role can only be one of these values
+    default: 'user' // By default, any new user is a 'user'
+  }
 }, {
-// Add timestamps for 'createdAt' and 'updatedAt' fields
-timestamps: true
+  timestamps: true
 });
 
-// Create and export the User model
-// Mongoose will create a collection named 'users' based on this model
 module.exports = mongoose.model('User', UserSchema);
