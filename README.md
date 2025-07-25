@@ -1,29 +1,46 @@
-
 # Inventory Management Tool - Backend API
 
 This repository contains the backend server for an Inventory Management Tool, built as part of a project assignment. The server exposes REST APIs to manage users and products, featuring JWT-based authentication for secure access.
 
+## What's New?
+- **Containerization:** The backend is now fully containerized using Docker for easy deployment and environment consistency.
+- **Analytics API:** Added endpoints for inventory analytics and reporting.
+- **Product Image Support:** Products can now include an image URL.
+- **Description Field:** Products now support a description field for richer details.
+- **Improved Pagination:** Enhanced product listing with better pagination controls.
+
 ## Features
 
-- **User Authentication:** Secure user registration and login using JSON Web Tokens (JWT).
-- **Product Management:**
-  - Add new products to the inventory.
-  - Update the quantity of existing products.
-  - Retrieve a paginated list of all products.
+**User Authentication:** Secure user registration and login using JSON Web Tokens (JWT).
+**Role-Based Access:** Users have roles (`user`, `admin`). Some endpoints are admin-only.
+**Product Management:**
+  - Add new products to the inventory (protected route).
+  - Update the quantity of existing products (protected route).
+  - Retrieve a paginated list of all products (protected route).
+**Analytics:**
+  - Get top products by quantity (`/analytics/top-products`). Only accessible to admin users.
 
 ### Technology Stack
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB (with Mongoose ODM)
-- **Authentication:** JSON Web Tokens (jsonwebtoken)
-- **Password Hashing:** bcryptjs
-- **Environment Variables:** dotenv
+**Backend:** Node.js, Express.js
+**Database:** MongoDB (with Mongoose ODM)
+**Authentication:** JSON Web Tokens (jsonwebtoken)
+**Password Hashing:** bcryptjs
+**Environment Variables:** dotenv
+**Containerization:** Docker
+**API Documentation:** OpenAPI (Swagger)
+
+## API Security & Roles
+- Most endpoints require authentication via JWT (see `.env` for `JWT_SECRET`).
+- Some endpoints (e.g., `/users`, `/analytics/top-products`) require the user to have an `admin` role.
+- See `models/User.js` for user roles and default values.
 
 ## Project Structure
 ```
-Epify/
+EpifyBackend/
 ├── config/
 │   └── db.js              # MongoDB connection setup
 ├── controllers/
+│   ├── analyticsController.js
 │   ├── productController.js
 │   └── userController.js
 ├── middleware/
@@ -32,29 +49,34 @@ Epify/
 │   ├── Product.js
 │   └── User.js
 ├── routes/
+│   ├── analyticsRoutes.js
 │   ├── productRoutes.js
 │   └── userRoutes.js
 ├── index.js               # Main server file
 ├── package.json
+├── openapi.yaml           # OpenAPI spec for API documentation
+├── Inventory Management API.postman_collection.json # Postman collection
+├── Dockerfile             # Docker build instructions
+├── .dockerignore          # Files/folders to ignore in Docker builds
 └── test_api.py            # Python script for API testing
 ```
 
 ## Setup and Installation
 
-Follow these steps to set up and run the project locally.
+Follow these steps to set up and run the project locally or in a container.
 
 ### Prerequisites
-- Node.js (v14 or newer)
-- npm
+- Node.js (v14 or newer) and npm (for local setup)
+- Docker (for containerized setup)
 - A MongoDB database instance (local or via a service like MongoDB Atlas)
 
 ### 1. Clone the Repository
 ```sh
 git clone <your-repository-url>
-cd Epify
+cd EpifyBackend
 ```
 
-### 2. Install Dependencies
+### 2. Install Dependencies (Local Only)
 ```sh
 npm install
 ```
@@ -74,15 +96,38 @@ JWT_SECRET=your_jwt_secret_key
 ```
 
 ### How to Run the Server
-To start the server, run the following command:
+
+#### Locally
+To start the server, run:
 ```sh
 npm start
 ```
-You should see the following output in your terminal, confirming the server is running and connected to the database:
-
+You should see output confirming the server is running and connected to the database:
 ```
 MongoDB connected successfully.
 Server is running on port 3000
+```
+
+#### With Docker
+To build and run the containerized backend:
+```sh
+# Build the Docker image
+docker build -t epify-backend .
+
+# Run the container (make sure your .env file is present)
+docker run --env-file .env -p 3000:3000 epify-backend
+```
+
+#### Docker Ignore
+The `.dockerignore` file is used to exclude files and folders from the Docker build context, making builds faster and more secure. Example contents:
+```ignore
+node_modules
+npm-debug.log
+.env
+Dockerfile
+.dockerignore
+.git
+.gitignore
 ```
 
 ## API Endpoints Guide
@@ -116,7 +161,15 @@ Adds a new product to the inventory.
 
 **Body:**
 ```json
-{ "name": "string", "type": "string", "sku": "string", "quantity": integer, "price": number }
+{
+  "name": "string",
+  "type": "string",
+  "sku": "string",
+  "image_url": "string",
+  "description": "string",
+  "quantity": integer,
+  "price": number
+}
 ```
 
 #### GET /products
@@ -147,10 +200,27 @@ Updates the quantity of a specific product.
 }
 ```
 
+### Analytics
+
+#### GET /analytics/summary
+Returns inventory summary and analytics data (e.g., total products, total quantity, etc.).
+
+> All analytics routes require an `Authorization: Bearer <token>` header.
+
+### Admin
+
+#### GET /users
+Retrieves a list of all registered users in the system.
+
+> This route is admin-only and requires an `Authorization: Bearer <token>` header.
+
+## API Documentation
+The API is documented using OpenAPI. See `openapi.yaml` for the full specification. You can import the Postman collection (`Inventory Management API.postman_collection.json`) for example requests.
+
 ## Testing
 A sample test script is provided in `test_api.py` (Python, uses `requests`).
 
-1. Make sure the server is running.
+1. Make sure the server is running (locally or in Docker).
 2. Run the script:
    ```sh
    python test_api.py
