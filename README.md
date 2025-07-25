@@ -1,36 +1,35 @@
 # Inventory Management Tool - Backend API
 
-This repository contains the backend server for an Inventory Management Tool. The server exposes REST APIs to manage users, products, and analytics, featuring JWT-based authentication for secure access. The backend is fully containerized using Docker for easy deployment and environment consistency.
+This backend API provides a complete solution for inventory management, including user authentication, product management, analytics, and robust documentation. The API is designed for easy deployment and scalability, with full containerization and OpenAPI support.
 
 ## Features
 
-- **User Authentication:** Secure user registration and login using JSON Web Tokens (JWT).
-- **Role-Based Access:** Users have roles (`user`, `admin`). Some endpoints are admin-only.
+- **User Authentication:** Secure registration and login using JWT.
+- **Role-Based Access:** Users can have roles (`user`, `admin`). Admin-only endpoints are supported.
 - **Product Management:**
-  - Add new products to the inventory (protected route).
-  - Update the quantity of existing products (protected route).
-  - Retrieve a paginated list of all products (protected route).
-  - Products include name, type, SKU, image URL, description, quantity, and price.
+  - Add new products to the inventory
+  - Update product quantity
+  - Retrieve a paginated list of products
+  - Products include name, type, SKU, image URL, description, quantity, and price
 - **Analytics:**
-  - Get top products by quantity (`/analytics/top-products`).
-- **API Documentation:** OpenAPI (Swagger) documentation available at `/docs`.
-- **Containerization:** Docker support for easy deployment.
-- **Environment Variables:** Managed via `.env` file.
-- **Testing:** Sample API test script provided in `test_api.py`.
+  - Get top products by quantity (`/analytics/top-products`)
+- **Admin Endpoints:**
+  - Retrieve all registered users (`GET /users`, admin-only)
+- **API Documentation:**
+  - Full OpenAPI (Swagger) documentation available in `openapi.yaml`
+  - Interactive docs at `/docs` when running the API
+- **Containerization:**
+  - Dockerfile and `.dockerignore` included for easy deployment
+  - Run the API in any environment with Docker
 
 ## Technology Stack
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB (with Mongoose ODM)
-- **Authentication:** JSON Web Tokens (jsonwebtoken)
-- **Password Hashing:** bcryptjs
-- **Environment Variables:** dotenv
-- **Containerization:** Docker
-- **API Documentation:** OpenAPI (Swagger)
-
-## API Security & Roles
-- Most endpoints require authentication via JWT (see `.env` for `JWT_SECRET`).
-- Some endpoints (e.g., `/users`, `/analytics/top-products`) require the user to have an `admin` role.
-- See `models/User.js` for user roles and default values.
+- Node.js, Express.js
+- MongoDB (Mongoose ODM)
+- JWT (jsonwebtoken)
+- bcryptjs
+- dotenv
+- Docker
+- OpenAPI (Swagger)
 
 ## Project Structure
 ```
@@ -61,12 +60,10 @@ EpifyBackend/
 
 ## Setup and Installation
 
-Follow these steps to set up and run the project locally or in a container.
-
 ### Prerequisites
 - Node.js (v14 or newer) and npm (for local setup)
 - Docker (for containerized setup)
-- A MongoDB database instance (local or via a service like MongoDB Atlas)
+- MongoDB database instance (local or MongoDB Atlas)
 
 ### 1. Clone the Repository
 ```sh
@@ -80,34 +77,21 @@ npm install
 ```
 
 ### 3. Configure Environment Variables
-Create a file named `.env` in the root of the project directory and add the following configuration variables:
-
+Create a `.env` file in the root directory:
 ```env
-# The port your server will run on
 PORT=3000
-
-# Your MongoDB connection string
 MONGO_URI=your_mongodb_connection_string
-
-# A long, random, and secret string for signing JWTs
 JWT_SECRET=your_jwt_secret_key
 ```
 
 ### How to Run the Server
 
 #### Locally
-To start the server, run:
 ```sh
 npm start
 ```
-You should see output confirming the server is running and connected to the database:
-```
-MongoDB connected successfully.
-Server is running on port 3000
-```
 
 #### With Docker
-To build and run the containerized backend:
 ```sh
 # Build the Docker image
 docker build -t epify-backend .
@@ -117,7 +101,7 @@ docker run --env-file .env -p 3000:3000 epify-backend
 ```
 
 #### Docker Ignore
-The `.dockerignore` file is used to exclude files and folders from the Docker build context, making builds faster and more secure. Example contents:
+The `.dockerignore` file excludes files and folders from the Docker build context, making builds faster and more secure. Example contents:
 ```ignore
 node_modules
 npm-debug.log
@@ -129,8 +113,6 @@ Dockerfile
 ```
 
 ## API Endpoints Guide
-
-All product-related endpoints are protected and require a Bearer Token in the Authorization header.
 
 ### User Authentication
 
@@ -201,9 +183,9 @@ Updates the quantity of a specific product.
 ### Analytics
 
 #### GET /analytics/top-products
-Returns top products by quantity.
+Returns the top 5 products by quantity in descending order.
 
-> This route may require an `Authorization: Bearer <token>` header if restricted to admin users.
+> This route is admin-only and requires an `Authorization: Bearer <token>` header.
 
 ### Admin
 
@@ -213,7 +195,9 @@ Retrieves a list of all registered users in the system.
 > This route is admin-only and requires an `Authorization: Bearer <token>` header.
 
 ## API Documentation
-The API is documented using OpenAPI. See `openapi.yaml` for the full specification. You can import the Postman collection (`Inventory Management API.postman_collection.json`) for example requests.
+- The API is documented using OpenAPI. See `openapi.yaml` in the repository for the full specification.
+- Interactive Swagger UI is available at `/docs` when the server is running.
+- You can import the Postman collection (`Inventory Management API.postman_collection.json`) for example requests.
 
 ## Testing
 A sample test script is provided in `test_api.py` (Python, uses `requests`).
