@@ -1,33 +1,31 @@
 # Inventory Management Tool - Backend API
 
-This repository contains the backend server for an Inventory Management Tool, built as part of a project assignment. The server exposes REST APIs to manage users and products, featuring JWT-based authentication for secure access.
-
-## What's New?
-- **Containerization:** The backend is now fully containerized using Docker for easy deployment and environment consistency.
-- **Analytics API:** Added endpoints for inventory analytics and reporting.
-- **Product Image Support:** Products can now include an image URL.
-- **Description Field:** Products now support a description field for richer details.
-- **Improved Pagination:** Enhanced product listing with better pagination controls.
+This repository contains the backend server for an Inventory Management Tool. The server exposes REST APIs to manage users, products, and analytics, featuring JWT-based authentication for secure access. The backend is fully containerized using Docker for easy deployment and environment consistency.
 
 ## Features
 
-**User Authentication:** Secure user registration and login using JSON Web Tokens (JWT).
-**Role-Based Access:** Users have roles (`user`, `admin`). Some endpoints are admin-only.
-**Product Management:**
+- **User Authentication:** Secure user registration and login using JSON Web Tokens (JWT).
+- **Role-Based Access:** Users have roles (`user`, `admin`). Some endpoints are admin-only.
+- **Product Management:**
   - Add new products to the inventory (protected route).
   - Update the quantity of existing products (protected route).
   - Retrieve a paginated list of all products (protected route).
-**Analytics:**
-  - Get top products by quantity (`/analytics/top-products`). Only accessible to admin users.
+  - Products include name, type, SKU, image URL, description, quantity, and price.
+- **Analytics:**
+  - Get top products by quantity (`/analytics/top-products`).
+- **API Documentation:** OpenAPI (Swagger) documentation available at `/docs`.
+- **Containerization:** Docker support for easy deployment.
+- **Environment Variables:** Managed via `.env` file.
+- **Testing:** Sample API test script provided in `test_api.py`.
 
-### Technology Stack
-**Backend:** Node.js, Express.js
-**Database:** MongoDB (with Mongoose ODM)
-**Authentication:** JSON Web Tokens (jsonwebtoken)
-**Password Hashing:** bcryptjs
-**Environment Variables:** dotenv
-**Containerization:** Docker
-**API Documentation:** OpenAPI (Swagger)
+## Technology Stack
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB (with Mongoose ODM)
+- **Authentication:** JSON Web Tokens (jsonwebtoken)
+- **Password Hashing:** bcryptjs
+- **Environment Variables:** dotenv
+- **Containerization:** Docker
+- **API Documentation:** OpenAPI (Swagger)
 
 ## API Security & Roles
 - Most endpoints require authentication via JWT (see `.env` for `JWT_SECRET`).
@@ -202,10 +200,10 @@ Updates the quantity of a specific product.
 
 ### Analytics
 
-#### GET /analytics/summary
-Returns inventory summary and analytics data (e.g., total products, total quantity, etc.).
+#### GET /analytics/top-products
+Returns top products by quantity.
 
-> All analytics routes require an `Authorization: Bearer <token>` header.
+> This route may require an `Authorization: Bearer <token>` header if restricted to admin users.
 
 ### Admin
 
